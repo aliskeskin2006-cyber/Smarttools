@@ -25,3 +25,5 @@ test('Pro onizleme sayaci sayfa yenilenince sifirlanmaz ama arac kilitlenmez',as
  await page.locator('#qrmake').click();
  await expect(page.locator('aside[aria-live="polite"]')).toContainText('1 işlem');
 });
+
+test('toplu QR kod olusturma ve PNG indirme',async({page})=>{await page.goto(url('toplu-qr.html'));await page.locator('#values').fill('https://example.com\\nMerhaba'.replace('\\n','\n'));await page.locator('#make').click();await expect(page.locator('#results .item')).toHaveCount(2);await expect(page.locator('#results a[download]')).toHaveCount(2);await expect(page.locator('#status')).toContainText('2 QR kod');});
