@@ -27,3 +27,31 @@ test('Pro onizleme sayaci sayfa yenilenince sifirlanmaz ama arac kilitlenmez',as
 });
 
 test('toplu QR kod olusturma ve PNG indirme',async({page})=>{await page.goto(url('toplu-qr.html'));await page.locator('#values').fill('https://example.com\\nMerhaba'.replace('\\n','\n'));await page.locator('#make').click();await expect(page.locator('#results .item')).toHaveCount(2);await expect(page.locator('#results a[download]')).toHaveCount(2);await expect(page.locator('#status')).toContainText('2 QR kod');});
+
+test('eski QR olusturucu bozulmadi: PNG gercek dosya',async({page})=>{
+ await page.goto(url('araclar.html'));
+ await page.locator('#qrtext').fill('https://example.com/eski');
+ await page.locator('#qrmake').click();
+ const a=page.locator('#qrdownload');
+ await expect(a).toBeVisible();
+ const href=await a.getAttribute('href');
+ expect(href).toMatch(/^data:image\/png;base64,/);
+ expect(Buffer.from(href.split(',')[1],'base64').subarray(0,8).toString('hex')).toBe('89504e470d0a1a0a');
+});
+test('toplu QR: bos giris, limit ve sayfa yenileme',async({page})=>{
+ await page.goto(url('toplu-qr.html'));
+ await page.locator('#make').click();
+ await expect(page.locator('#status')).toContainText('Önce en az bir');
+ await page.locator('#values').fill(Array.from({length:21},(_,i)=>'link-'+i).join('\n'));
+ await page.locator('#make').click();
+ await expect(page.locator('#status')).toContainText('En fazla 20');
+ await expect(page.locator('#results .item')).toHaveCount(0);
+ await page.locator('#values').fill('https://example.com');
+ await page.locator('#make').click();
+ await expect(page.locator('#results .item')).toHaveCount(1);
+ const href=await page.locator('#results a[download]').first().getAttribute('href');
+ expect(href).toMatch(/^data:image\/png;base64,/);
+ expect(Buffer.from(href.split(',')[1],'base64').subarray(0,8).toString('hex')).toBe('89504e470d0a1a0a');
+ await page.reload();
+ await expect(page.locator('#make')).toBeEnabled();
+});
