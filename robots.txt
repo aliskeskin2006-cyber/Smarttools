@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://aliskeskin2006-cyber.github.io/Smarttools/sitemap.xml
