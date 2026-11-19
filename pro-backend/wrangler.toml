@@ -1,0 +1,9 @@
+name = "smarttools-pro"
+main = "worker.js"
+compatibility_date = "2026-11-20"
+
+# D1 oluşturulduktan sonra gerçek database_id buraya eklenmelidir.
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "smarttools-pro"
+# database_id = "REPLACE_WITH_REAL_DATABASE_ID"
