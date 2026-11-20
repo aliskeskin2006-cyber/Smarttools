@@ -9,7 +9,7 @@ const oid="TEST-ORDER-001",email="paid@example.com",phone="05321234567";
 const validOrder=()=>({
  id:oid,paymentStatus:"paid",currency:"TRY",
  dateCreated:new Date().toISOString(),
- totals:{total:"999.00"},
+ totals:{total:"149.00"},
  lineItems:[{productId:"53173649",quantity:1}],
  refunds:[],returns:[],shippingInfo:{email,phone}
 });
@@ -53,7 +53,7 @@ function mockFetch(order=validOrder()){
  const previous=globalThis.fetch;
  globalThis.fetch=async url=>{
   const path=String(url);
-  if(path.includes("/products/53173649"))return Response.json({id:"53173649",priceData:{currency:"TRY",price:"999.00",discount:false}});
+  if(path.includes("/products/53173649"))return Response.json({id:"53173649",priceData:{currency:"TRY",price:"149.00",discount:false}});
   if(path.includes("/orders/"))return Response.json(order);
   throw new Error("Unexpected URL: "+path);
  };
@@ -100,11 +100,4 @@ test("Checkout readiness checks existing product and database",async()=>{
  const e=env();const restore=mockFetch();
  try{const r=await ready({env:e});assert.equal(r.status,200);assert.equal((await r.json()).ready,true);}
  finally{restore();}
-});
-
-// A Shopier payment at the previous amount must never unlock 999 TRY Pro.
-test("Old price is rejected even for paid orders",async()=>{
- const e=env();const restore=mockFetch({...validOrder(),totals:{total:"149.00"}});
- try{const r=await claim({request:req("/api/pro/claim",{orderId:oid,email,phone6:"234567"}),env:e});
- assert.equal(r.status,422);assert.equal(e.PRO_DB.orders.size,0);}finally{restore();}
 });

@@ -39,7 +39,7 @@ export async function onRequestPost({request,env}) {
  // Reject multi-product purchases until there is an explicit fulfillment policy.
  const productMatches=lineItems.length===1 && String(lineItems[0]?.productId)==="53173649";
  const totalString=String(order?.totals?.total??"").trim().replace(",",".");
- const amountMatches=/^999(?:\.0{1,2})?$/.test(totalString);
+ const amountMatches=/^149(?:\.0{1,2})?$/.test(totalString);
  const checks={idMatches:!!idMatches,paid,currencyMatches,productMatches,amountMatches,refundsClear};
  return json({
    exists:!!idMatches,checks,

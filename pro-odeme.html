@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="tr"><head><script>if(location.hostname.endsWith("github.io"))location.replace("https://smarttools-cgv.pages.dev"+location.pathname.replace(/^\/Smarttools(?=\/|$)/i,"")+location.search+location.hash)</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080e1c">
-<meta name="description" content="SmartTools Pro 999 TL, 30 günlük üyelik ve Shopier ödeme bağlantısı."><title>SmartTools Pro · Ödeme ve aktivasyon</title>
+<meta name="description" content="SmartTools Pro 149 TL, 30 günlük üyelik ve Shopier ödeme bağlantısı."><title>SmartTools Pro · Ödeme ve aktivasyon</title>
 <style>
 :root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark}*{box-sizing:border-box}
 body{margin:0;background:radial-gradient(ellipse at top,#173858,#080e1c 70%);color:#edf6ff;min-height:100vh}a{color:#88eaff}
@@ -20,7 +20,7 @@ footer{border-top:1px solid #263852;padding:26px 0;color:#9aafc6;font-size:13px}
 <p>Shopier üzerinden tek ödeme yaparsın. Üyeliğin, Shopier sipariş bilgilerin doğrulandıktan sonra SmartTools'ta etkinleşir.</p>
 <section class="panel">
 <h2>SmartTools Pro</h2>
-<div class="price">999 TL <small>/ 30 gün · otomatik yenileme yok</small></div>
+<div class="price">149 TL <small>/ 30 gün · otomatik yenileme yok</small></div>
 <ul><li>Sunucuda hesaplanan X etkileşim raporu</li><li>Sunucuda hesaplanan Instagram etkileşim raporu</li><li>Pro CSV rapor dışa aktarma</li><li>Üyelik durumu kontrolü ve geri dönüş kodu</li></ul>
 <a id="checkout" class="button disabled" href="./fiyatlandirma.html" aria-disabled="true">Ödeme kontrol ediliyor…</a>
 <p id="checkoutStatus" class="status" role="status">Sunucu ve Shopier ürün fiyatı kontrol ediliyor.</p>
@@ -28,7 +28,7 @@ footer{border-top:1px solid #263852;padding:26px 0;color:#9aafc6;font-size:13px}
 <a class="button secondary" href="./pro-sosyal-rapor.html">Pro analiz raporları</a>
 </section>
 <section class="panel"><h2>Ödeme sonrası ne yapacaksın?</h2>
-<ol class="steps"><li>Shopier'de 999 TL'lik SmartTools Pro siparişini tamamla.</li>
+<ol class="steps"><li>Shopier'de 149 TL'lik SmartTools Pro siparişini tamamla.</li>
 <li>Shopier'in ödeme sonrası gösterdiği veya gönderdiği sipariş numaranı bul.</li>
 <li>SmartTools <a href="./pro-aktivasyon.html">aktivasyon sayfasında</a> sipariş numaranı, ödeme e-postanı ve telefonunun son 6 rakamını gir.</li>
 <li>Sunucu Shopier'den ödemeyi, ürünü, tutarı ve iade durumunu kontrol eder. Doğrulanırsa Pro erişim açılır.</li>
@@ -45,8 +45,8 @@ document.getElementById("year").textContent=new Date().getFullYear();
  try{
  const r=await fetch("/api/pro/sales-ready",{cache:"no-store"}),data=await r.json();
  if(!r.ok||!data.ready)throw Error(data.reason||"not_ready");
- link.href="https://www.shopier.com/smarttoolspro/53173649";link.classList.remove("disabled");link.removeAttribute("aria-disabled");link.textContent="Shopier ile güvenli öde · 999 TL";
- status.textContent=data.productPriceVerifiedByAPI?"Shopier ürün ve üyelik altyapısı kontrolleri başarılı. Ödeme sonrası aktivasyon adımlarını izle.":"Shopier sipariş doğrulaması hazır, ürün fiyatı API ile doğrulanamadı. Ödeme ekranında tutarın tam 999 TL olduğunu kontrol et; farklıysa ödeme yapma. İlk gerçek sipariş testi henüz yapılmadı.";
+ link.href="https://www.shopier.com/smarttoolspro/53173649";link.classList.remove("disabled");link.removeAttribute("aria-disabled");link.textContent="Shopier ile güvenli öde · 149 TL";
+ status.textContent=data.productPriceVerifiedByAPI?"Shopier ürün ve üyelik altyapısı kontrolleri başarılı. Ödeme sonrası aktivasyon adımlarını izle.":"Shopier sipariş doğrulaması hazır, ürün fiyatı API ile doğrulanamadı. Ödeme ekranında tutarın tam 149 TL olduğunu kontrol et; farklıysa ödeme yapma. İlk gerçek sipariş testi henüz yapılmadı.";
  }catch{
  link.href="./fiyatlandirma.html";link.classList.add("disabled");link.setAttribute("aria-disabled","true");link.textContent="Ödeme geçici olarak kullanılamıyor";
  status.textContent="Satın alma doğrulanamadığından ödeme butonu kapalı. Ücretsiz araçları kullanmaya devam edebilirsin.";
