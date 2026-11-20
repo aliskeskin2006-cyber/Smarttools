@@ -11,7 +11,7 @@ export async function onRequestGet({env}){
  try{r=await fetch("https://api.shopier.com/v1/products/53173649",{
  headers:{"authorization":"Bearer "+env.SHOPIER_API_TOKEN,"accept":"application/json"},signal:AbortSignal.timeout(8000)
  });}catch{return reply({ready:false,reason:"shopier_connection"},503);}
- if(!r.ok)return reply({ready:false,reason:"product_not_available"},503);
+ if(!r.ok)return reply({ready:false,reason:r.status===401||r.status===403?"shopier_auth":r.status===404?"product_not_found":"shopier_product_error",upstreamStatus:r.status},503);
  let product;try{product=await r.json();}catch{return reply({ready:false,reason:"product_response"},503);}
  const p=product?.id?product:product?.data;
  if(String(p?.id)!=="53173649"||p?.priceData?.currency!=="TRY"||!amount(p?.priceData?.price)||
