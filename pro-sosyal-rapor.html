@@ -23,7 +23,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#081526;padding:12px;
 <form id="form"><label for="platform">Platform</label><select id="platform"><option value="x">X</option><option value="instagram">Instagram</option></select>
 <div id="posts"></div>
 <button class="secondary" type="button" id="add">+ Gönderi ekle</button>
-<button id="submit" type="submit">Pro raporu oluştur</button></form><p id="message" role="status"></p>
+<button id="submit" type="submit">Pro raporu oluştur</button><button id="export" class="secondary" type="button">Pro CSV indir</button></form><p id="message" role="status"></p>
 <div id="report" hidden><h2>Raporun</h2><div id="summary"></div><p id="top"></p><p>Oranlar gösterim ve manuel girilen etkileşim sayılarından hesaplanır.</p></div>
 </section>
 <p>Pro üyelik satışına henüz başlanmadı. Otomatik Shopier teslimatı ve tüm ücretli araçların erişim denetimi tamamlanana kadar bu ekran test amaçlıdır.</p>
@@ -44,6 +44,17 @@ async function check(){
  document.getElementById("membership").textContent=d.active?"Pro aktif. Bitiş: "+new Date(d.expiresAt).toLocaleDateString("tr-TR"):"Aktif Pro üyeliğin bulunmuyor.";
  }catch{document.getElementById("membership").textContent="Üyelik sunucusuna ulaşılamadı.";}
 }check();
+document.getElementById("export").addEventListener("click",async()=>{
+ const button=document.getElementById("export");button.disabled=true;message.textContent="CSV hazırlanıyor…";
+ const rows=[...posts.children].map(div=>({impressions:Number(div.querySelector('[name="impressions"]').value),likes:Number(div.querySelector('[name="likes"]').value),other:Number(div.querySelector('[name="other"]').value)}));
+ try{
+  const res=await fetch("/api/pro/export",{method:"POST",headers:{"content-type":"application/json"},credentials:"same-origin",cache:"no-store",body:JSON.stringify({platform:document.getElementById("platform").value,posts:rows})});
+  if(!res.ok){const d=await res.json();message.textContent=d.error||"CSV indirilemedi.";return;}
+  const data=await res.blob(),url=URL.createObjectURL(data);
+  const a=document.createElement("a");a.href=url;a.download="smarttools-pro-analiz.csv";document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);
+  message.textContent="Pro CSV indirildi.";
+ }catch{message.textContent="CSV bağlantı hatası.";}finally{button.disabled=false;}
+});
 document.getElementById("form").addEventListener("submit",async e=>{
  e.preventDefault();report.hidden=true;message.textContent="Üyelik ve veriler kontrol ediliyor…";
  const button=document.getElementById("submit");button.disabled=true;
