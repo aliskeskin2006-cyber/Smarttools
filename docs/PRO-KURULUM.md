@@ -1,7 +1,7 @@
 # SmartTools Pro — kurulum ve güvenlik durumu
 
 Bu kod **ödeme kabul etmez** ve Shopier ödemelerini henüz otomatik doğrulamaz.
-Fiyat: Shopier ürününde 149 TL / 30 günlük tek seferlik erişim; otomatik yenileme yoktur.
+Fiyat: Shopier ürününde 999 TL / 30 günlük tek seferlik erişim; otomatik yenileme yoktur.
 
 ## Hazır olan parçalar
 - `schema/pro_memberships.sql`: D1 tablosu (kodun SHA-256 özeti ve tek seferlik oturum).
