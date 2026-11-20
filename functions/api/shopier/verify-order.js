@@ -50,3 +50,8 @@ export async function onRequestPost({ request, env }) {
    note:"Bu sadece satıcı inceleme testidir; ücret ve müşteri eşleştirmesi ayrıca doğrulanmadan erişim açılmaz."
  });
 }
+
+// Browser-safe diagnostic: this endpoint requires POST, not a navigation request.
+export async function onRequestGet() {
+ return json({endpoint:"shopier-order-verification",ready:true,method:"POST required",paymentActivation:false},405);
+}
