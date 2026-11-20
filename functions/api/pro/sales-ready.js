@@ -11,9 +11,21 @@ export async function onRequestGet({env}){
  try{r=await fetch("https://api.shopier.com/v1/products/53173649",{
  headers:{"authorization":"Bearer "+env.SHOPIER_API_TOKEN,"accept":"application/json"},signal:AbortSignal.timeout(8000)
  });}catch{return reply({ready:false,reason:"shopier_connection"},503);}
- if(!r.ok)return reply({ready:false,reason:r.status===401||r.status===403?"shopier_auth":r.status===404?"product_not_found":"shopier_product_error",upstreamStatus:r.status},503);
- let product;try{product=await r.json();}catch{return reply({ready:false,reason:"product_response"},503);}
- const p=product?.id?product:product?.data;
+ let p;
+ if(r.ok){
+  try{const product=await r.json();p=product?.id?product:product?.data;}catch{return reply({ready:false,reason:"product_response"},503);}
+ }else{
+  // Some merchant accounts allow listing products but not reading one product by ID.
+  let list;
+  try{list=await fetch("https://api.shopier.com/v1/products?limit=100",{
+   headers:{"authorization":"Bearer "+env.SHOPIER_API_TOKEN,"accept":"application/json"},signal:AbortSignal.timeout(8000)
+  });}catch{return reply({ready:false,reason:"shopier_products_connection"},503);}
+  if(!list.ok)return reply({ready:false,reason:"shopier_products_forbidden",detailStatus:r.status,listStatus:list.status},503);
+  let entries;try{entries=await list.json();}catch{return reply({ready:false,reason:"shopier_list_response"},503);}
+  const items=Array.isArray(entries)?entries:Array.isArray(entries?.data)?entries.data:Array.isArray(entries?.items)?entries.items:[];
+  p=items.find(x=>String(x?.id)==="53173649");
+  if(!p)return reply({ready:false,reason:"product_not_found_in_list",detailStatus:r.status},503);
+ }
  if(String(p?.id)!=="53173649"||p?.priceData?.currency!=="TRY"||!amount(p?.priceData?.price)||
  p?.priceData?.discount===true)return reply({ready:false,reason:"price_mismatch"},503);
  return reply({ready:true,price:149,currency:"TRY",durationDays:30,
