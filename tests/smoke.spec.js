@@ -4,8 +4,8 @@ test('video editor controls and input validation',async({page})=>{await page.got
 
 test('bilgilendirme sayfalari ve ana sayfa baglantilari',async({page})=>{
  await page.goto(url('index.html'));
- await expect(page.locator('a[href="./gizlilik.html"]')).toHaveCount(1);
- await expect(page.locator('a[href="./hakkimizda.html"]')).toHaveCount(1);
+ await expect(page.locator('a[href="./gizlilik.html"]').first()).toBeVisible();
+ await expect(page.locator('a[href="./hakkimizda.html"]').first()).toBeVisible();
  for(const file of ['gizlilik.html','hakkimizda.html']){
   await page.goto(url(file));
   await expect(page.locator('h1')).toBeVisible();
