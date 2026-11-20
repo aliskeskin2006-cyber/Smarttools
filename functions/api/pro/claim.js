@@ -23,7 +23,7 @@ async function throttle(request,env){
 }
 const orderIsValid=o=>{
  if(!o || o.paymentStatus!=="paid" || o.currency!=="TRY")return false;
- if(!/^149(?:[.,]0{1,2})?$/.test(String(o?.totals?.total??"").trim()))return false;
+ if(!/^999(?:[.,]0{1,2})?$/.test(String(o?.totals?.total??"").trim()))return false;
  const items=o.lineItems;
  if(!Array.isArray(items)||items.length!==1||String(items[0]?.productId)!=="53173649"||Number(items[0]?.quantity)!==1)return false;
  if(!Array.isArray(o.refunds)||o.refunds.length!==0||!Array.isArray(o.returns)||o.returns.length!==0)return false;

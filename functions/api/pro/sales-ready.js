@@ -1,6 +1,6 @@
 // Public readiness only: never return merchant data, tokens or customer information.
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}});
-const amount=x=>/^149(?:[.,]0{1,2})?$/.test(String(x??"").trim());
+const amount=x=>/^999(?:[.,]0{1,2})?$/.test(String(x??"").trim());
 export async function onRequestGet({env}){
  if(!env.PRO_DB||!env.SHOPIER_API_TOKEN||!env.ADMIN_VERIFY_SECRET||env.ADMIN_VERIFY_SECRET.length<32)return reply({ready:false,reason:"configuration"},503);
  try{
@@ -23,18 +23,18 @@ export async function onRequestGet({env}){
   if(!list.ok){
     // Product read access may be unavailable on some Shopier merchant accounts.
     // Only proceed if the ORDER API is independently working; every paid claim
-    // still validates the real 149 TRY paid order, product ID and refund status.
+    // still validates the real 999 TRY paid order, product ID and refund status.
     let orderProbe;
     try{orderProbe=await fetch("https://api.shopier.com/v1/orders/TEST-YOK-2026",{
       headers:{"authorization":"Bearer "+env.SHOPIER_API_TOKEN,"accept":"application/json"},
       signal:AbortSignal.timeout(8000)
     });}catch{return reply({ready:false,reason:"shopier_orders_connection"},503);}
     if(orderProbe.status!==404)return reply({ready:false,reason:"shopier_orders_access",orderStatus:orderProbe.status},503);
-    return reply({ready:true,price:149,currency:"TRY",durationDays:30,
+    return reply({ready:true,price:999,currency:"TRY",durationDays:30,
       productPriceVerifiedByAPI:false,orderApiAvailable:true,
       orderVerification:"verified_on_claim",fulfillment:"buyer_self_activation",
       testedWithPaidOrder:false,
-      warning:"Ürün API'si erişime kapalı. Ödeme öncesi Shopier'de fiyatın 149 TL olduğunu kontrol edin."
+      warning:"Ürün API'si erişime kapalı. Ödeme öncesi Shopier'de fiyatın 999 TL olduğunu kontrol edin."
     });
   }
   let entries;try{entries=await list.json();}catch{return reply({ready:false,reason:"shopier_list_response"},503);}
@@ -44,7 +44,7 @@ export async function onRequestGet({env}){
  }
  if(String(p?.id)!=="53173649"||p?.priceData?.currency!=="TRY"||!amount(p?.priceData?.price)||
  p?.priceData?.discount===true)return reply({ready:false,reason:"price_mismatch"},503);
- return reply({ready:true,price:149,currency:"TRY",durationDays:30,productPriceVerifiedByAPI:true,
+ return reply({ready:true,price:999,currency:"TRY",durationDays:30,productPriceVerifiedByAPI:true,
    orderVerification:"server_side",fulfillment:"buyer_self_activation",
    testedWithPaidOrder:false});
 }

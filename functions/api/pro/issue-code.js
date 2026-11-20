@@ -21,7 +21,7 @@ export async function onRequestPost({request,env}) {
  // Reject any unexpected response; never guess prices, order status or product IDs.
  const valid=String(o?.id||"")===id &&
  o?.paymentStatus==="paid" && o?.currency==="TRY" &&
- /^149(?:\.0{1,2})?$/.test(amount) &&
+ /^999(?:\.0{1,2})?$/.test(amount) &&
  items.length===1 && String(items[0]?.productId)==="53173649" &&
  (items[0]?.quantity===1 || items[0]?.quantity==="1") &&
  Array.isArray(o?.refunds) && o.refunds.length===0 &&

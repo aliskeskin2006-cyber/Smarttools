@@ -21,7 +21,7 @@ async function loadOrder(id,env){
 function validOrder(o,id){
  const items=Array.isArray(o?.lineItems)?o.lineItems:[];
  return String(o?.id||"")===id && o?.paymentStatus==="paid" && o.currency==="TRY"
- && /^149(?:\.0{1,2})?$/.test(String(o?.totals?.total??"").trim().replace(",","."))
+ && /^999(?:\.0{1,2})?$/.test(String(o?.totals?.total??"").trim().replace(",","."))
  && items.length===1 && String(items[0]?.productId)==="53173649"
  && (items[0]?.quantity===1||items[0]?.quantity==="1")
  && Array.isArray(o?.refunds)&&o.refunds.length===0
