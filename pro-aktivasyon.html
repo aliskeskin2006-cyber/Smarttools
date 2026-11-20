@@ -1,38 +1,78 @@
 <!doctype html>
-<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#080e1c"><title>SmartTools Pro · Üyelik Kontrolü</title>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080e1c"><meta name="description" content="SmartTools Pro sipariş doğrulama ve 30 günlük aktivasyon.">
+<title>SmartTools Pro · Sipariş ve üyelik</title>
 <style>
-:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark;background:#080e1c;color:#f1f7ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b3a56,#080e1c 70%);min-height:100vh}.wrap{width:min(560px,calc(100% - 32px));margin:auto;padding:30px 0 70px}a{color:#67e8f9}h1{font-size:clamp(28px,7vw,42px)}p{color:#c6d7e8;line-height:1.65}.panel{background:#122239;border:1px solid #38506b;border-radius:17px;padding:24px;margin:20px 0}label{display:block;margin:14px 0 7px;font-weight:700}input{width:100%;background:#09172a;color:white;border:1px solid #59738e;border-radius:10px;padding:13px;font:inherit}button{background:#67e8f9;color:#04242a;font:inherit;font-weight:750;border:0;border-radius:10px;padding:13px 20px;margin-top:14px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.notice{border-left:3px solid #67e8f9;padding:9px 12px;background:#162d44}.small{font-size:13px}
-</style></head><body><main class="wrap">
-<a href="./pro-odeme.html">← Pro planına dön</a>
-<h1>SmartTools Pro üyelik kontrolü</h1>
-<p>Aktivasyon kodun varsa buradan kullanabilirsin. Kod teslimi henüz otomatik değildir; satış sistemi hazırlık aşamasındadır.</p>
-<section class="panel"><h2>Üyelik durumun</h2><p id="status" role="status">Kontrol ediliyor…</p><button id="refresh" type="button">Durumu yenile</button></section>
-<section class="panel"><h2>Aktivasyon kodu</h2><p>Bu alan yalnızca ödeme doğrulaması sonrasında verilmiş geçerli bir kodu kabul eder. Satın alma işlemi gerçekleştirmez.</p>
-<form id="activate"><label for="code">Aktivasyon kodunu gir</label><input id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="80" minlength="24" pattern="[a-zA-Z0-9-]{24,80}" placeholder="Aktivasyon kodu" required><button id="submit" type="submit">Aktifleştir</button></form><p id="result" role="status"></p></section>
-<p class="notice"><strong>Bilgi:</strong> Henüz sipariş sonrası otomatik kod teslimi yoktur. Ayrıca ücretli araçların sunucu tarafı erişim kontrolü tamamlanmadan satış açılmayacaktır.</p><p class="small"><a href="./araclar.html">Ücretsiz araçları kullan</a></p>
-</main><script>
+:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark;background:#080e1c;color:#eef6ff}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#1b3a56,#080e1c 72%);min-height:100vh}
+main{max-width:680px;margin:auto;padding:28px 17px 70px}a{color:#67e8f9}
+h1{font-size:clamp(30px,7vw,44px)}p{color:#c0d2e5;line-height:1.6}
+.card{background:#12233b;border:1px solid #38516b;border-radius:20px;padding:24px;margin:20px 0}
+.card h2{margin-top:0}label{display:block;margin:15px 0 6px;font-weight:650}
+input{width:100%;padding:13px;font:inherit;color:#fff;background:#071629;border:1px solid #5c7794;border-radius:11px}
+button{background:#67e8f9;color:#06242e;font:inherit;font-weight:750;border:0;padding:13px 18px;border-radius:11px;margin-top:14px;cursor:pointer}
+button:disabled{opacity:.6}code{overflow-wrap:anywhere} .alert{padding:12px 15px;border-left:3px solid #67e8f9;background:#183148;border-radius:8px}
+#recovery{margin-top:15px;background:#071629;padding:14px;border-radius:10px;overflow-wrap:anywhere}
+.muted{font-size:13px}.hidden{display:none}.smalllink{margin:15px 0;display:inline-block}
+</style></head><body><main>
+<a class="smalllink" href="./pro-odeme.html">← SmartTools Pro</a>
+<h1>Pro üyeliğini etkinleştir</h1>
+<p>Shopier üzerinden SmartTools Pro satın alanlar, siparişlerini doğrulayıp 30 günlük Pro erişimini buradan açabilir. Doğrulama sunucuda yapılır.</p>
+<section class="card"><h2>Üyelik durumun</h2><p id="member" role="status">Kontrol ediliyor…</p>
+<button id="refresh" type="button">Durumu yenile</button> <a href="./pro-sosyal-rapor.html">Pro araçlarına git</a></section>
+<section class="card"><h2>1. Satın aldığın siparişi doğrula</h2>
+<p>Ödemeyi Shopier'de tamamladıktan sonra sipariş numaranı, alışverişte kullandığın e-postayı ve telefon numaranın son 6 rakamını gir.</p>
+<form id="claimForm" autocomplete="off">
+<label for="order">Shopier sipariş numarası</label><input id="order" required pattern="[A-Za-z0-9_-]{3,60}" maxlength="60" placeholder="Sipariş numaran">
+<label for="email">Ödemede kullanılan e-posta</label><input id="email" type="email" required maxlength="254" placeholder="ornek@eposta.com" autocomplete="email">
+<label for="phone6">Ödemede kullanılan telefonun son 6 rakamı</label><input id="phone6" type="text" inputmode="numeric" required maxlength="6" pattern="[0-9]{6}" placeholder="123456">
+<button type="submit" id="claimButton">Siparişi doğrula ve Pro'yu aç</button>
+</form><p id="claimMessage" role="status"></p>
+<div id="recoveryBox" class="hidden"><div class="alert"><strong>Önemli:</strong> Geri dönüş kodun yalnızca burada gösterilir. Başka telefonda veya tarayıcı verilerini sildiğinde bu kodla giriş yaparsın. Kimseyle paylaşma.</div>
+<div id="recovery"></div><button id="copyCode" type="button">Geri dönüş kodunu kopyala</button></div>
+<p class="muted">Girdiğin kişisel bilgiler veritabanına kaydedilmez; yalnızca Shopier siparişiyle sunucuda karşılaştırılır. Çok sayıda başarısız deneme geçici olarak engellenir.</p>
+</section>
+<section class="card"><h2>2. Geri dönüş koduyla giriş</h2>
+<p>Daha önce Pro'yu etkinleştirdiysen ve bu cihazda aktif görünmüyorsa, sakladığın kodla giriş yap.</p>
+<form id="recoverForm"><label for="recoverCode">Geri dönüş kodu</label>
+<input type="password" id="recoverCode" autocomplete="off" required maxlength="64" minlength="64" pattern="[A-Fa-f0-9]{64}" placeholder="64 karakterlik kod">
+<button type="submit" id="recoverButton">Pro erişimimi geri yükle</button></form>
+<p id="recoverMessage" role="status"></p></section>
+<div class="alert"><strong>Ürün bilgisi:</strong> SmartTools Pro tek ödemeyle 30 günlük erişim sağlar; otomatik yenileme yoktur. Süre ödeme tarihinden itibaren hesaplanır. Ücretli araçlar yalnızca aktif oturumla çalışır.</div>
+<a class="smalllink" href="./araclar.html">Ücretsiz araçlara dön</a>
+</main>
+<script>
 "use strict";
-const status=document.getElementById("status"),result=document.getElementById("result");
-async function refresh() {
- status.textContent="Kontrol ediliyor…";
- try {
- const res=await fetch("/api/pro/status",{cache:"no-store",credentials:"same-origin"});
- const data=await res.json();
- status.textContent=data.active?"Pro erişimi aktif. Bitiş: "+new Date(data.expiresAt).toLocaleString("tr-TR"):"Aktif Pro erişimin bulunmuyor.";
- if(!res.ok && data.ready===false) status.textContent="Üyelik sunucusu henüz kullanıma hazır değil.";
- }catch {status.textContent="Üyelik kontrolüne şu anda ulaşılamıyor.";}
+const $=id=>document.getElementById(id);
+async function status(){
+ $("member").textContent="Üyelik kontrol ediliyor…";
+ try{const r=await fetch("/api/pro/status",{cache:"no-store",credentials:"same-origin"}),d=await r.json();
+ $("member").textContent=d.active?"Pro aktif. Son kullanma tarihi: "+new Date(d.expiresAt).toLocaleString("tr-TR"):"Bu tarayıcıda aktif Pro erişimin bulunmuyor.";}
+ catch{$("member").textContent="Üyelik kontrolüne şu an ulaşılamıyor.";}
 }
-document.getElementById("refresh").addEventListener("click",refresh);
-document.getElementById("activate").addEventListener("submit",async e=>{
- e.preventDefault();const btn=document.getElementById("submit"),input=document.getElementById("code");
- btn.disabled=true;result.textContent="Kontrol ediliyor…";
- try {
- const res=await fetch("/api/pro/redeem",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code:input.value}),credentials:"same-origin",cache:"no-store"});
- const data=await res.json();
- result.textContent=data.active?"Kod kabul edildi.":data.error||"Aktivasyon gerçekleştirilemedi.";
- if(data.active){input.value="";await refresh();}
- }catch {result.textContent="Bağlantı hatası.";}
- btn.disabled=false;
+$("refresh").addEventListener("click",status);
+$("claimForm").addEventListener("submit",async e=>{
+ e.preventDefault();const b=$("claimButton");b.disabled=true;$("recoveryBox").classList.add("hidden");$("claimMessage").textContent="Shopier siparişi doğrulanıyor…";
+ try{
+ const r=await fetch("/api/pro/claim",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},cache:"no-store",
+ body:JSON.stringify({orderId:$("order").value.trim(),email:$("email").value.trim(),phone6:$("phone6").value})});
+ const d=await r.json();
+ if(!r.ok){$("claimMessage").textContent=d.error||"Sipariş doğrulanamadı.";return;}
+ $("claimMessage").textContent="Ödeme doğrulandı; Pro erişimin açıldı.";
+ $("recovery").textContent=d.recoveryCode;$("recoveryBox").classList.remove("hidden");
+ $("claimForm").reset();await status();
+ }catch{$("claimMessage").textContent="Bağlantı kurulamadı. Biraz sonra tekrar deneyin.";}finally{b.disabled=false;}
 });
-refresh();
+$("copyCode").addEventListener("click",async()=>{
+ try{await navigator.clipboard.writeText($("recovery").textContent);$("copyCode").textContent="Kopyalandı";}catch{$("copyCode").textContent="Kodu seçip kopyalayın";}
+});
+$("recoverForm").addEventListener("submit",async e=>{
+ e.preventDefault();const b=$("recoverButton");b.disabled=true;$("recoverMessage").textContent="Kod doğrulanıyor…";
+ try{
+ const r=await fetch("/api/pro/recover",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},cache:"no-store",body:JSON.stringify({code:$("recoverCode").value})});
+ const d=await r.json();$("recoverMessage").textContent=d.active?"Pro erişimin geri yüklendi.":d.error||"Kod doğrulanamadı.";
+ if(d.active){$("recoverForm").reset();await status();}
+ }catch{$("recoverMessage").textContent="Bağlantı kurulamadı.";}finally{b.disabled=false;}
+});
+status();
 </script></body></html>
