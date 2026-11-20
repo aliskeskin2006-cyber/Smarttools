@@ -40,7 +40,7 @@ export async function onRequestPost({request,env}){
  const orderId=typeof payload?.orderId==="string"?payload.orderId.trim():"";
  const email=typeof payload?.email==="string"?payload.email.trim().toLowerCase():"";
  const phone6=typeof payload?.phone6==="string"?payload.phone6.trim():"";
- if(!/^[a-zA-Z0-9_-]{3,60}$/.test(orderId)||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||email.length>254||!/^\\d{6}$/.test(phone6))return reply({error:"Sipariş numarasını, e-posta adresini ve telefonun son 6 rakamını kontrol edin."},400);
+ if(!/^[a-zA-Z0-9_-]{3,60}$/.test(orderId)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||!/^\d{6}$/.test(phone6))return reply({error:"Sipariş numarasını, e-posta adresini ve telefonun son 6 rakamını kontrol edin."},400);
  try{if(!(await throttle(request,env)))return reply({error:"Çok fazla deneme yapıldı. 15 dakika sonra tekrar deneyin."},429);}
  catch{return reply({error:"Güvenlik kontrolü kullanılamıyor."},503);}
  let response;
@@ -51,7 +51,7 @@ export async function onRequestPost({request,env}){
  let order;try{order=await response.json();}catch{return reply({error:"Shopier yanıtı okunamadı."},502);}
  if(!orderIsValid(order)||String(order.id)!==orderId)return reply({error:"Sipariş doğrulanamadı. Ödeme tamamlanmadıysa Shopier'den kontrol edin."},422);
  const shopierEmail=String(order.shippingInfo?.email||"").trim().toLowerCase();
- const shopierPhone=String(order.shippingInfo?.phone||"").replace(/\\D/g,"");
+ const shopierPhone=String(order.shippingInfo?.phone||"").replace(/\D/g,"");
  if(!equal(shopierEmail,email)||!shopierPhone.endsWith(phone6))return reply({error:"Sipariş bilgileri eşleşmiyor."},422);
  const expiresAt=new Date(Date.parse(order.dateCreated)+30*86400000).toISOString();
  const session=random(),recovery=random().toUpperCase(),now=new Date().toISOString();
