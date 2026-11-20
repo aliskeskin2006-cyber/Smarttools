@@ -20,7 +20,23 @@ export async function onRequestGet({env}){
   try{list=await fetch("https://api.shopier.com/v1/products?limit=100",{
    headers:{"authorization":"Bearer "+env.SHOPIER_API_TOKEN,"accept":"application/json"},signal:AbortSignal.timeout(8000)
   });}catch{return reply({ready:false,reason:"shopier_products_connection"},503);}
-  if(!list.ok)return reply({ready:false,reason:"shopier_products_forbidden",detailStatus:r.status,listStatus:list.status},503);
+  if(!list.ok){
+    // Product read access may be unavailable on some Shopier merchant accounts.
+    // Only proceed if the ORDER API is independently working; every paid claim
+    // still validates the real 149 TRY paid order, product ID and refund status.
+    let orderProbe;
+    try{orderProbe=await fetch("https://api.shopier.com/v1/orders/TEST-YOK-2026",{
+      headers:{"authorization":"Bearer "+env.SHOPIER_API_TOKEN,"accept":"application/json"},
+      signal:AbortSignal.timeout(8000)
+    });}catch{return reply({ready:false,reason:"shopier_orders_connection"},503);}
+    if(orderProbe.status!==404)return reply({ready:false,reason:"shopier_orders_access",orderStatus:orderProbe.status},503);
+    return reply({ready:true,price:149,currency:"TRY",durationDays:30,
+      productPriceVerifiedByAPI:false,orderApiAvailable:true,
+      orderVerification:"verified_on_claim",fulfillment:"buyer_self_activation",
+      testedWithPaidOrder:false,
+      warning:"Ürün API'si erişime kapalı. Ödeme öncesi Shopier'de fiyatın 149 TL olduğunu kontrol edin."
+    });
+  }
   let entries;try{entries=await list.json();}catch{return reply({ready:false,reason:"shopier_list_response"},503);}
   const items=Array.isArray(entries)?entries:Array.isArray(entries?.data)?entries.data:Array.isArray(entries?.items)?entries.items:[];
   p=items.find(x=>String(x?.id)==="53173649");
@@ -28,7 +44,7 @@ export async function onRequestGet({env}){
  }
  if(String(p?.id)!=="53173649"||p?.priceData?.currency!=="TRY"||!amount(p?.priceData?.price)||
  p?.priceData?.discount===true)return reply({ready:false,reason:"price_mismatch"},503);
- return reply({ready:true,price:149,currency:"TRY",durationDays:30,
+ return reply({ready:true,price:149,currency:"TRY",durationDays:30,productPriceVerifiedByAPI:true,
    orderVerification:"server_side",fulfillment:"buyer_self_activation",
    testedWithPaidOrder:false});
 }
