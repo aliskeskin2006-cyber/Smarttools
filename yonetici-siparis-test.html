@@ -24,7 +24,7 @@ a{color:#7de9f7}.hint{font-size:13px}
 <button type="submit">Sipariş sorgusunu test et</button>
 </form>
 <p id="state" role="status"></p><pre id="result" hidden></pre>
-<p class="hint">Henüz hiç sipariş yoksa örnek olarak <code>TEST-YOK-2026</code> yazabilirsiniz. Beklenen yanıt: sipariş bulunamadı. Gerçek sipariş oluşmadan ücretli erişim açılmaz.</p>
+<hr style="border:0;border-top:1px solid #344965;margin-top:25px"><h2>Ödeme doğrulandıktan sonra aktivasyon kodu</h2><p>Yalnızca gerçek ve ödemesi tamamlanmış 149 TL SmartTools Pro siparişi için kullan. Bu işlem kodu bir kez oluşturur; müşteriyle sen paylaşmalısın.</p><button type="button" id="issue">Doğrulanmış siparişe kod oluştur</button><p id="issue-state" role="status"></p><pre id="issued" hidden></pre><p class="hint"><a href="./pro-aktivasyon.html">Müşterinin kod gireceği sayfa</a></p><p class="hint">Henüz hiç sipariş yoksa örnek olarak <code>TEST-YOK-2026</code> yazabilirsiniz. Beklenen yanıt: sipariş bulunamadı. Gerçek sipariş oluşmadan ücretli erişim açılmaz.</p>
 </section></main>
 <script>
 "use strict";
@@ -38,6 +38,21 @@ form.addEventListener("submit",async e=>{
  state.textContent=resp.status===404?"Test tamamlandı: bu sipariş bulunamadı.":resp.ok?"Shopier yanıtı alındı.":"Kontrol tamamlanamadı (HTTP "+resp.status+").";
  out.textContent=JSON.stringify(data,null,2);out.hidden=false;
  }catch{state.textContent="Bağlantı hatası. Cloudflare yayınını kontrol edin.";}
+ document.getElementById("secret").value="";
+});
+document.getElementById("issue").addEventListener("click",async()=>{
+ const id=document.getElementById("order").value.trim();
+ const secret=document.getElementById("secret").value;
+ const msg=document.getElementById("issue-state"),out=document.getElementById("issued");
+ out.hidden=true;out.textContent="";
+ if(secret.length<32||!id){msg.textContent="Yönetici anahtarını ve Shopier sipariş numarasını gir.";return;}
+ if(!confirm("Bu gerçek ödeme yapılan sipariş için tek kullanımlık bir kod oluşturacak. Devam edilsin mi?"))return;
+ msg.textContent="Ödeme ve ürün kontrol ediliyor...";
+ try {
+ const response=await fetch("/api/pro/issue-code",{method:"POST",headers:{"content-type":"application/json","x-smarttools-admin":secret},body:JSON.stringify({orderId:id}),cache:"no-store"});
+ const data=await response.json();msg.textContent=data.created?"Kod oluşturuldu. Bu kod yalnızca bir kez gösterilir. Doğru müşteriye güvenli şekilde ilet.":"Kod oluşturulamadı.";
+ out.textContent=JSON.stringify(data,null,2);out.hidden=false;
+ }catch{msg.textContent="İşlem gerçekleştirilemedi.";}
  document.getElementById("secret").value="";
 });
 </script></body></html>
