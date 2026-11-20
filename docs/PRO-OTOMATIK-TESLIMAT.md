@@ -6,7 +6,7 @@
 - D1 tabanlı, tek kullanımlık Pro kodu / 30 günlük erişim: `/api/pro/redeem`, `/api/pro/status`
 - Sunucu tarafında gerçek üyelik denetimiyle çalışan Pro sosyal raporu: `/api/pro/report`
 - Yönetici sipariş inceleme ve manuel kod verme ekranı
-- `order.created` bildiriminde Shopier API ile yeniden sipariş ve **149 TL**, ürün, miktar, para birimi, ödeme ve iade doğrulaması
+- `order.created` bildiriminde Shopier API ile yeniden sipariş ve **999 TL**, ürün, miktar, para birimi, ödeme ve iade doğrulaması
 - Doğrulama geçerse yalnızca müşterinin sipariş e-posta adresine aktivasyon e-postası gönderme hazırlığı. Kod veritabanında açık tutulmaz.
 
 ## Otomatik teslimatın devreye alınması için eksikler
@@ -23,6 +23,6 @@
 - `/api/pro/report` **sunucu tarafında** Pro oturumunu ve bitiş zamanını D1'den kontrol eder.
 - Eski X/Instagram analiz panelleri kasıtlı şekilde **ücretsiz ön izleme** olarak kalır.
 - Tamamı tarayıcıda çalışan statik QR/PDF/fotoğraf araçları sunucu koruması olmadan ücretli ilan edilmemeli. Bu araçların gerçekten ücretli versiyonları ayrı sunucu işlevlerine taşınmalı.
-- Otomatik olarak yenilenen abonelik yoktur; fiyat 149 TL / 30 gün tek ödemedir.
+- Otomatik olarak yenilenen abonelik yoktur; fiyat 999 TL / 30 gün tek ödemedir.
 
 **Durum:** GitHub kodu eklendi, fakat e-posta servisi ve webhook aboneliği bağlanmadan otomatik teslimat ÇALIŞMAZ. Henüz gerçek siparişle uçtan uca doğrulanmamıştır. Satışı açmayın.
