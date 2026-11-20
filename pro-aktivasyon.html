@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#080e1c"><title>SmartTools Pro · Üyelik Kontrolü</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark;background:#080e1c;color:#f1f7ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b3a56,#080e1c 70%);min-height:100vh}.wrap{width:min(560px,calc(100% - 32px));margin:auto;padding:30px 0 70px}a{color:#67e8f9}h1{font-size:clamp(28px,7vw,42px)}p{color:#c6d7e8;line-height:1.65}.panel{background:#122239;border:1px solid #38506b;border-radius:17px;padding:24px;margin:20px 0}label{display:block;margin:14px 0 7px;font-weight:700}input{width:100%;background:#09172a;color:white;border:1px solid #59738e;border-radius:10px;padding:13px;font:inherit}button{background:#67e8f9;color:#04242a;font:inherit;font-weight:750;border:0;border-radius:10px;padding:13px 20px;margin-top:14px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.notice{border-left:3px solid #67e8f9;padding:9px 12px;background:#162d44}.small{font-size:13px}
+</style></head><body><main class="wrap">
+<a href="./pro-odeme.html">← Pro planına dön</a>
+<h1>SmartTools Pro üyelik kontrolü</h1>
+<p>Aktivasyon kodun varsa buradan kullanabilirsin. Kod teslimi henüz otomatik değildir; satış sistemi hazırlık aşamasındadır.</p>
+<section class="panel"><h2>Üyelik durumun</h2><p id="status" role="status">Kontrol ediliyor…</p><button id="refresh" type="button">Durumu yenile</button></section>
+<section class="panel"><h2>Aktivasyon kodu</h2><p>Bu alan yalnızca ödeme doğrulaması sonrasında verilmiş geçerli bir kodu kabul eder. Satın alma işlemi gerçekleştirmez.</p>
+<form id="activate"><label for="code">Aktivasyon kodunu gir</label><input id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="80" minlength="24" pattern="[a-zA-Z0-9-]{24,80}" placeholder="Aktivasyon kodu" required><button id="submit" type="submit">Aktifleştir</button></form><p id="result" role="status"></p></section>
+<p class="notice"><strong>Bilgi:</strong> Henüz sipariş sonrası otomatik kod teslimi yoktur. Ayrıca ücretli araçların sunucu tarafı erişim kontrolü tamamlanmadan satış açılmayacaktır.</p><p class="small"><a href="./araclar.html">Ücretsiz araçları kullan</a></p>
+</main><script>
+"use strict";
+const status=document.getElementById("status"),result=document.getElementById("result");
+async function refresh() {
+ status.textContent="Kontrol ediliyor…";
+ try {
+ const res=await fetch("/api/pro/status",{cache:"no-store",credentials:"same-origin"});
+ const data=await res.json();
+ status.textContent=data.active?"Pro erişimi aktif. Bitiş: "+new Date(data.expiresAt).toLocaleString("tr-TR"):"Aktif Pro erişimin bulunmuyor.";
+ if(!res.ok && data.ready===false) status.textContent="Üyelik sunucusu henüz kullanıma hazır değil.";
+ }catch {status.textContent="Üyelik kontrolüne şu anda ulaşılamıyor.";}
+}
+document.getElementById("refresh").addEventListener("click",refresh);
+document.getElementById("activate").addEventListener("submit",async e=>{
+ e.preventDefault();const btn=document.getElementById("submit"),input=document.getElementById("code");
+ btn.disabled=true;result.textContent="Kontrol ediliyor…";
+ try {
+ const res=await fetch("/api/pro/redeem",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code:input.value}),credentials:"same-origin",cache:"no-store"});
+ const data=await res.json();
+ result.textContent=data.active?"Kod kabul edildi.":data.error||"Aktivasyon gerçekleştirilemedi.";
+ if(data.active){input.value="";await refresh();}
+ }catch {result.textContent="Bağlantı hatası.";}
+ btn.disabled=false;
+});
+refresh();
+</script></body></html>
