@@ -15,4 +15,6 @@ jobs:
           node-version: '22'
       - run: npm install --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
+      - run: find functions -name '*.js' -type f -exec node --check {} \;
+      - run: node --test tests/pro-contract.test.mjs
       - run: npm test
