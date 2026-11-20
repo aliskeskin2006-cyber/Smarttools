@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartTools Pro | Sosyal Analiz Raporu</title><meta name="description" content="SmartTools Pro üyeleri için X ve Instagram etkileşim analizi.">
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark;background:#080e1c;color:#f4f8ff}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#17365a,#080e1c 70%);min-height:100vh}
+main{max-width:690px;margin:auto;padding:24px 16px 70px}a{color:#67e8f9}p{color:#b6cbe0;line-height:1.55}
+section{border:1px solid #37516a;background:#121f34;border-radius:18px;margin:18px 0;padding:22px}
+label{display:block;margin:12px 0 6px;font-weight:700}
+input,select{width:100%;background:#08172b;color:#fff;border:1px solid #58738d;border-radius:10px;padding:11px;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid label{font-size:13px}
+button{border:0;background:#67e8f9;color:#06232e;border-radius:10px;padding:13px 17px;font:inherit;font-weight:750;margin-top:12px;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}.secondary{background:#203852;color:white}
+.stat{display:inline-block;padding:10px;background:#182d48;border-radius:9px;margin:5px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#081526;padding:12px;border-radius:10px}
+@media(max-width:450px){.grid{grid-template-columns:1fr}}
+</style></head><body><main>
+<a href="./pro-aktivasyon.html">← Pro üyelik kontrolü</a>
+<h1>💎 Sosyal Medya Pro Raporu</h1>
+<p>Bu rapor yalnızca aktif SmartTools Pro üyeliğiyle oluşturulur. X veya Instagram verilerini kendin girersin; hesap şifresi veya sosyal medya bağlantısı istenmez.</p>
+<section><h2>Üyelik durumu</h2><p id="membership">Kontrol ediliyor…</p><a href="./pro-aktivasyon.html">Aktivasyon kodu gir</a></section>
+<section><h2>Verilerini gir</h2>
+<form id="form"><label for="platform">Platform</label><select id="platform"><option value="x">X</option><option value="instagram">Instagram</option></select>
+<div id="posts"></div>
+<button class="secondary" type="button" id="add">+ Gönderi ekle</button>
+<button id="submit" type="submit">Pro raporu oluştur</button></form><p id="message" role="status"></p>
+<div id="report" hidden><h2>Raporun</h2><div id="summary"></div><p id="top"></p><p>Oranlar gösterim ve manuel girilen etkileşim sayılarından hesaplanır.</p></div>
+</section>
+<p>Pro üyelik satışına henüz başlanmadı. Otomatik Shopier teslimatı ve tüm ücretli araçların erişim denetimi tamamlanana kadar bu ekran test amaçlıdır.</p>
+<script>
+"use strict";
+const posts=document.getElementById("posts"),message=document.getElementById("message"),report=document.getElementById("report");
+let n=0;
+function addPost(){
+ if(n>=100)return;
+ n++;
+ const div=document.createElement("div");div.className="grid";div.innerHTML='<div><label>Gösterim</label><input name="impressions" type="number" min="0" max="1000000000" step="1" required value="1000"></div><div><label>Beğeni</label><input name="likes" type="number" min="0" max="1000000000" step="1" required value="50"></div><div><label>Diğer etkileşimler</label><input name="other" type="number" min="0" max="1000000000" step="1" required value="20"></div>';
+ posts.append(div);
+}
+document.getElementById("add").addEventListener("click",addPost);addPost();addPost();
+async function check(){
+ try{
+ const r=await fetch("/api/pro/status",{credentials:"same-origin",cache:"no-store"}),d=await r.json();
+ document.getElementById("membership").textContent=d.active?"Pro aktif. Bitiş: "+new Date(d.expiresAt).toLocaleDateString("tr-TR"):"Aktif Pro üyeliğin bulunmuyor.";
+ }catch{document.getElementById("membership").textContent="Üyelik sunucusuna ulaşılamadı.";}
+}check();
+document.getElementById("form").addEventListener("submit",async e=>{
+ e.preventDefault();report.hidden=true;message.textContent="Üyelik ve veriler kontrol ediliyor…";
+ const button=document.getElementById("submit");button.disabled=true;
+ const rows=[...posts.children].map(div=>({impressions:Number(div.querySelector('[name="impressions"]').value),likes:Number(div.querySelector('[name="likes"]').value),other:Number(div.querySelector('[name="other"]').value)}));
+ try{
+ const r=await fetch("/api/pro/report",{method:"POST",headers:{"content-type":"application/json"},credentials:"same-origin",cache:"no-store",body:JSON.stringify({platform:document.getElementById("platform").value,posts:rows})});
+ const d=await r.json();
+ if(!r.ok)message.textContent=d.error||"Rapor hazırlanamadı.";
+ else{
+ message.textContent="Rapor hazır.";report.hidden=false;
+ const sum=document.getElementById("summary");sum.replaceChildren();
+ const data=[["Gönderi",d.postCount],["Gösterim",d.totalImpressions],["Etkileşim",d.totalEngagements],["Genel oran","%"+d.overallEngagementRate]];
+ for(const [name,value] of data){const box=document.createElement("span");box.className="stat";box.textContent=name+": "+value;sum.append(box);}
+ document.getElementById("top").textContent="En yüksek oranlı gönderiler: "+d.topPosts.map(x=>"#"+x.post+" (%"+x.rate+")").join(", ");
+ }
+ }catch{message.textContent="Bağlantı sorunu.";}finally{button.disabled=false;}
+});
+</script></main></body></html>
