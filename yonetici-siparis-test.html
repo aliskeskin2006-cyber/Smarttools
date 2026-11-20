@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Shopier Sipariş Kontrolü · SmartTools Yönetici</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#0b1324;color:#eef6ff}
+*{box-sizing:border-box}body{margin:0;padding:22px}main{max-width:580px;margin:24px auto}
+section{background:#16233b;border:1px solid #344965;border-radius:18px;padding:24px}
+h1{font-size:27px;margin:0 0 8px}p{line-height:1.55;color:#b8c9db}
+label{display:block;font-weight:650;margin-top:19px;margin-bottom:7px}
+input{width:100%;border:1px solid #57718d;border-radius:10px;background:#0c1830;color:white;font:inherit;padding:12px}
+button{margin-top:20px;width:100%;background:#67e8f9;color:#05252d;border:0;padding:13px;border-radius:11px;font-weight:800;font:inherit;cursor:pointer}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#091325;border-radius:10px;padding:15px;font-size:13px}
+a{color:#7de9f7}.hint{font-size:13px}
+</style></head><body><main>
+<a href="./">← SmartTools ana sayfa</a>
+<section><h1>Shopier sipariş kontrolü</h1>
+<p>Bu yalnızca site yöneticisinin test ekranıdır. Gerçek ödeme almaz, Pro üyelik açmaz ve API anahtarını göstermez.</p>
+<form id="form">
+<label for="secret">Yönetici doğrulama anahtarı</label>
+<input type="password" id="secret" autocomplete="off" spellcheck="false" required minlength="32" placeholder="Cloudflare'daki ADMIN_VERIFY_SECRET değeri">
+<p class="hint">Anahtar bu sayfada saklanmaz ve yalnızca kendi sitenizin doğrulama API'sine HTTPS üzerinden gönderilir. Shopier API anahtarını buraya yazmayın.</p>
+<label for="order">Sipariş numarası</label>
+<input id="order" type="text" pattern="[A-Za-z0-9_-]{3,60}" maxlength="60" required placeholder="TEST-YOK-2026">
+<button type="submit">Sipariş sorgusunu test et</button>
+</form>
+<p id="state" role="status"></p><pre id="result" hidden></pre>
+<p class="hint">Henüz hiç sipariş yoksa örnek olarak <code>TEST-YOK-2026</code> yazabilirsiniz. Beklenen yanıt: sipariş bulunamadı. Gerçek sipariş oluşmadan ücretli erişim açılmaz.</p>
+</section></main>
+<script>
+"use strict";
+const form=document.getElementById("form"),state=document.getElementById("state"),out=document.getElementById("result");
+form.addEventListener("submit",async e=>{
+ e.preventDefault();out.hidden=true;out.textContent="";state.textContent="Sorgulanıyor...";
+ const secret=document.getElementById("secret").value,orderId=document.getElementById("order").value.trim();
+ try {
+ const resp=await fetch("/api/shopier/verify-order",{method:"POST",headers:{"content-type":"application/json","x-smarttools-admin":secret},body:JSON.stringify({orderId}),cache:"no-store",credentials:"same-origin"});
+ const data=await resp.json();
+ state.textContent=resp.status===404?"Test tamamlandı: bu sipariş bulunamadı.":resp.ok?"Shopier yanıtı alındı.":"Kontrol tamamlanamadı (HTTP "+resp.status+").";
+ out.textContent=JSON.stringify(data,null,2);out.hidden=false;
+ }catch{state.textContent="Bağlantı hatası. Cloudflare yayınını kontrol edin.";}
+ document.getElementById("secret").value="";
+});
+</script></body></html>
