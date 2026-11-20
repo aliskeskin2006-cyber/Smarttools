@@ -10,9 +10,25 @@ export async function onRequestPost({request,env}){
   const token=c.split(";").map(x=>x.trim()).find(x=>x.startsWith("st_pro="))?.slice(7);
   if(!token||!/^[a-f0-9]{64}$/.test(token))return send({error:"Bu rapor yalnızca aktif Pro üyeler içindir.",requiresPro:true},403);
   let row;
-  try{row=await env.PRO_DB.prepare("SELECT expires_at FROM pro_access WHERE session_hash = ? AND redeemed_at IS NOT NULL AND expires_at > ?").bind(await hash(token),new Date().toISOString()).first();}
+  try{row=await env.PRO_DB.prepare("SELECT order_id,expires_at FROM pro_access WHERE session_hash = ? AND redeemed_at IS NOT NULL AND expires_at > ?").bind(await hash(token),new Date().toISOString()).first();}
   catch{return send({error:"Üyelik kontrolüne ulaşılamadı."},503);}
   if(!row)return send({error:"Pro üyeliği bulunamadı veya sona erdi.",requiresPro:true},403);
+ if(!env.SHOPIER_API_TOKEN)return send({error:"Shopier bağlantısı hazır değil."},503);
+ let paidOrder;
+ try{
+  const resp=await fetch("https://api.shopier.com/v1/orders/"+encodeURIComponent(row.order_id),{
+   headers:{"authorization":"Bearer "+env.SHOPIER_API_TOKEN,"accept":"application/json"},signal:AbortSignal.timeout(7000)});
+  if(!resp.ok)return send({error:"Shopier ödeme kontrolü başarısız."},502);
+  paidOrder=await resp.json();
+ }catch{return send({error:"Shopier bağlantısı sağlanamadı."},502);}
+ const paidValid=String(paidOrder?.id||"")===row.order_id
+  &&paidOrder?.paymentStatus==="paid"&&Array.isArray(paidOrder?.refunds)&&paidOrder.refunds.length===0
+  &&Array.isArray(paidOrder?.returns)&&paidOrder.returns.length===0;
+ if(!paidValid){
+  try{await env.PRO_DB.prepare("UPDATE pro_access SET expires_at=? WHERE order_id=?").bind(new Date().toISOString(),row.order_id).run();}catch{}
+  return send({error:"Sipariş iade edilmiş, iptal edilmiş veya artık ödenmiş değil."},403);
+ }
+
   if(!(request.headers.get("content-type")||"").includes("application/json"))return send({error:"JSON gerekli."},415);
   let input;try{input=await request.json();}catch{return send({error:"Geçersiz veri."},400);}
   const platform=input?.platform;
