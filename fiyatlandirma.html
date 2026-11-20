@@ -10,7 +10,7 @@ document.getElementById("year").textContent=new Date().getFullYear();
   if(!r.ok||!d.ready)throw Error(d.reason||"not_ready");
   button.href="https://www.shopier.com/smarttoolspro/53173649";
   button.classList.remove("disabled");button.removeAttribute("aria-disabled");button.textContent="Shopier'de 149 TL öde →";
-  label.textContent="Shopier ürün fiyatı ve üyelik bağlantısı doğrulandı. Satın almadan önce teslimat açıklamasını oku.";
+  label.textContent=d.productPriceVerifiedByAPI?"Shopier ürün fiyatı ve üyelik bağlantısı doğrulandı. Satın almadan önce teslimat açıklamasını oku.":"Sipariş doğrulama bağlantısı hazır. Shopier ürün bilgisi API ile okunamadı; ödeme yapmadan önce ürün fiyatının 149 TL olduğunu kontrol et.";
  }catch{
   button.href="./pro-odeme.html";button.classList.add("disabled");button.setAttribute("aria-disabled","true");button.textContent="Ödeme geçici olarak kapalı";
   label.textContent="Güvenli ödeme bağlantısı henüz doğrulanamadı. Ücretsiz araçları kullanmaya devam edebilirsin.";
