@@ -55,3 +55,15 @@ test('toplu QR: bos giris, limit ve sayfa yenileme',async({page})=>{
  await page.reload();
  await expect(page.locator('#make')).toBeEnabled();
 });
+
+
+test('ana sayfa Pro odemesi ve guncel aciklamalar',async({page})=>{
+ await page.goto(url('index.html'));
+ await expect(page.locator('a[href="./pro-odeme.html"]')).toBeVisible();
+ await expect(page.locator('a[href="./pro-odeme.html"]')).toContainText('149 TL');
+ await expect(page.locator('body')).not.toContainText('Pro paketi henüz satışa açık değildir');
+ await page.goto(url('fiyatlandirma.html'));
+ await expect(page.locator('body')).toContainText('149 TL');
+ await page.goto(url('araclar.html'));
+ await expect(page.locator('#qrmake')).toBeEnabled();
+});
