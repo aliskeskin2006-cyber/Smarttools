@@ -67,3 +67,26 @@ test('ana sayfa Pro odemesi ve guncel aciklamalar',async({page})=>{
  await page.goto(url('araclar.html'));
  await expect(page.locator('#qrmake')).toBeEnabled();
 });
+
+
+test('Cloudflare canonical, sitemap ve popüler araç bağlantıları',async({page})=>{
+ await page.goto(url('index.html'));
+ await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://smarttools-cgv.pages.dev/');
+ await expect(page.locator('a[href="./araclar.html#qr-kod"]').first()).toBeVisible();
+ await expect(page.locator('a[href="./araclar.html#pdf-araclari"]').first()).toBeVisible();
+ await expect(page.locator('a[href="./instagram-analiz.html"]').first()).toBeVisible();
+ await page.goto(url('araclar.html'));
+ await expect(page.locator('#qr-kod #qrmake')).toBeVisible();
+ await expect(page.locator('#pdf-araclari #mergepdf')).toBeVisible();
+ await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://smarttools-cgv.pages.dev/araclar.html');
+ for(const file of ['instagram-analiz.html','x-analiz.html','toplu-qr.html']){
+  await page.goto(url(file));
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://smarttools-cgv.pages.dev/'+file);
+ }
+ const sitemap=require('fs').readFileSync(path.join(root,'sitemap.xml'),'utf8');
+ const robots=require('fs').readFileSync(path.join(root,'robots.txt'),'utf8');
+ expect(sitemap).toContain('<loc>https://smarttools-cgv.pages.dev/</loc>');
+ expect(sitemap).toContain('instagram-analiz.html');
+ expect(sitemap).not.toContain('github.io');
+ expect(robots).toContain('https://smarttools-cgv.pages.dev/sitemap.xml');
+});
