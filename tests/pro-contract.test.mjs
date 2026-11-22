@@ -101,3 +101,19 @@ test("Checkout readiness checks existing product and database",async()=>{
  try{const r=await ready({env:e});assert.equal(r.status,200);assert.equal((await r.json()).ready,true);}
  finally{restore();}
 });
+
+test("Checkout remains disabled if Shopier cannot confirm the product price",async()=>{
+ const e=env(),previous=globalThis.fetch;
+ globalThis.fetch=async url=>{
+  const path=String(url);
+  if(path.includes("/products/53173649")||path.includes("/products?limit=100"))return Response.json({error:"forbidden"},{status:403});
+  if(path.includes("/orders/TEST-YOK-2026"))return Response.json({error:"not found"},{status:404});
+  throw Error("Unexpected URL "+path);
+ };
+ try{
+  const response=await ready({env:e}),data=await response.json();
+  assert.equal(response.status,503);
+  assert.equal(data.ready,false);
+  assert.equal(data.reason,"product_price_unverified");
+ }finally{globalThis.fetch=previous;}
+});
