@@ -30,12 +30,13 @@ export async function onRequestGet({env}){
       signal:AbortSignal.timeout(8000)
     });}catch{return reply({ready:false,reason:"shopier_orders_connection"},503);}
     if(orderProbe.status!==404)return reply({ready:false,reason:"shopier_orders_access",orderStatus:orderProbe.status},503);
-    return reply({ready:true,price:149,currency:"TRY",durationDays:30,
+    // Do not enable checkout unless Shopier itself confirmed the exact product and 149 TRY price.
+    // A working order API alone does not prove the linked product is available at the advertised price.
+    return reply({ready:false,reason:"product_price_unverified",
       productPriceVerifiedByAPI:false,orderApiAvailable:true,
-      orderVerification:"verified_on_claim",fulfillment:"buyer_self_activation",
       testedWithPaidOrder:false,
-      warning:"Ürün API'si erişime kapalı. Ödeme öncesi Shopier'de fiyatın 149 TL olduğunu kontrol edin."
-    });
+      warning:"Shopier ürününün 149 TL fiyatı API ile doğrulanamadığı için ödeme geçici olarak kapalı."
+    },503);
   }
   let entries;try{entries=await list.json();}catch{return reply({ready:false,reason:"shopier_list_response"},503);}
   const items=Array.isArray(entries)?entries:Array.isArray(entries?.data)?entries.data:Array.isArray(entries?.items)?entries.items:[];
