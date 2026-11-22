@@ -1,21 +1,25 @@
-# SmartTools Pro — kurulum ve güvenlik durumu
+# SmartTools Pro — canlı kurulum kontrol listesi (22 Kasım 2026)
 
-Bu kod **ödeme kabul etmez** ve Shopier ödemelerini henüz otomatik doğrulamaz.
-Fiyat: Shopier ürününde 149 TL / 30 günlük tek seferlik erişim; otomatik yenileme yoktur.
+**Shopier ürün bağlantısı:** https://www.shopier.com/smarttoolspro/53173649  
+**İlan edilen erişim:** 149 TL / 30 gün, tek seferlik ödeme; otomatik yenileme yok.
 
-## Hazır olan parçalar
-- `schema/pro_memberships.sql`: D1 tablosu (kodun SHA-256 özeti ve tek seferlik oturum).
-- `POST /api/pro/redeem`: yalnızca önceden *doğrulanarak* veritabanına kaydedilmiş kodu tek seferlik etkinleştirir.
-- `GET /api/pro/status`: HttpOnly oturum çerezine göre güncel 30 günlük erişimi kontrol eder.
-- Kod ve oturum anahtarı veritabanında açık hâliyle saklanmaz.
+## Mevcut kod
+- GitHub Pages sayfaları Cloudflare ana alan adına yönlendirilir.
+- Cloudflare Pages Functions: `/api/pro/sales-ready`, `/api/pro/claim`, `/api/pro/status`, `/api/pro/recover` ve sunucu tarafında korunan Pro raporları.
+- Müşteri tarafından aktivasyon akışı sipariş numarasını, Shopier ödeme e-postasını ve telefondaki son 6 haneyi Shopier API'sinden doğrular; uygun sipariş 30 günlük erişim açabilir. Bu **kodun mevcut olması**, canlı Shopier siparişiyle başarıyla test edildiği anlamına gelmez.
+- Ürün fiyatı API'den **149 TRY olarak doğrulanamıyorsa** `sales-ready` satın alma düğmesini kapalı tutar. Sadece Shopier sipariş API'sinin erişilebilir olması fiyat doğrulaması yerine geçmez.
+- QR, PDF ve fotoğraf gibi tarayıcıda çalışan ücretsiz araçlar otomatik olarak Pro erişim denetimi altında değildir; ücretli gibi tanıtılmamalıdır.
 
-## Canlıya almadan önce
-1. Cloudflare D1 veritabanı oluşturun; SQL dosyasını D1 Console'da çalıştırın.
-2. Pages > Settings > Bindings üzerinden **PRO_DB** adlı D1 binding oluşturun; yeniden deploy edin.
-3. Shopier PAT'yi **henüz** oluşturmayın. Onaylı API ile satın alma ve alıcı eşleştirmesi ayrı bir sunucu işlevinde geliştirilmeli; fiyat/ürün/sipariş durumu sunucu tarafından doğrulanmalı. Shopier'in gerçek yanıt şeması kontrol edilmeden siparişleri otomatik etkinleştirmeyin.
-4. Ödeme güvenle doğrulandıktan sonra rastgele ve uzun aktivasyon kodu oluşturup **yalnızca hash'ini** `pro_access` tablosuna, eşsiz Shopier sipariş kimliği ve doğrulanan ödeme tarihinden itibaren 30 günlük `expires_at` ile girin. Kodun açık hâlini sadece doğru müşteriye iletin.
-5. Pro araçlarını yalnızca ekranda gizlemek yetmez: ücretli işlemleri sunucu tarafında `/api/pro/status` mantığıyla korunan endpointlere taşıyın.
-6. Kaba kuvvet denemelerine karşı Cloudflare rate limiting ve bot koruması ekleyin. İade ve iptal sonrası oturumu iptal etme işlemini tamamlayın.
-7. Ödeme otomasyonu, D1 bağlantısı, güvenli aktivasyon, iptal ve kullanım limitleri test edilmeden satış açmayın.
+## Canlıda doğrulanması gerekenler
+1. Cloudflare Pages projesinde `PRO_DB` adlı D1 binding'i ve `schema/pro_memberships.sql` şemasının kurulu olması.
+2. Cloudflare Secrets bölümünde `SHOPIER_API_TOKEN` ve en az 32 karakterlik `ADMIN_VERIFY_SECRET` bulunması. Gizli anahtarlar **GitHub'a eklenmez**.
+3. `GET /api/shopier/connection` ve `GET /api/pro/sales-ready` yanıtlarının canlı Cloudflare adresinden gözlemlenmesi. `ready:true`, altyapı ön kontrolüdür; gerçek sipariş testinin kanıtı değildir.
+4. Shopier ürün sayfasında fiyatın **149 TL** olduğunun ve ürünün satılabilir durumda bulunduğunun kontrol edilmesi.
+5. Gerçek Shopier API yanıt alanlarının `claim.js` ile uyumu, kontrollü test siparişi, birden fazla aktivasyonun engellenmesi, geri dönüş koduyla giriş, iade/iptal süreci.
+6. Cloudflare rate limiting, bot koruması, hata ve destek yollarının ayrıca incelenmesi.
+7. Cloudflare dağıtımının GitHub'daki güncel sürümü içerdiğinin kontrol edilmesi; GitHub'a commit atılmış olması tek başına Cloudflare yayınını kanıtlamaz.
 
-**Dikkat:** `st_pro` çerezi sadece `/api/pro` altında gönderilir. Buradaki durumu denetlemek, bütün statik HTML araçlarını otomatik olarak korumaz.
+## Opsiyonel otomatik e-posta ve webhook teslimatı
+`docs/PRO-OTOMATIK-TESLIMAT.md` e-posta/webhook üzerinden alternatif teslimat akışını açıklar. Bu parçaların kurulu olmaması Shopier API'li müşteri aktivasyon kodunun varlığını ortadan kaldırmaz; ancak canlı satışa hazır olduğunu da kanıtlamaz.
+
+**Durum:** Kod ve güvenli ödeme kapısı var. Shopier fiyatı, Cloudflare ayarları ve ilk gerçek siparişin uçtan uca başarılı olduğu bağımsız doğrulanmadan satışın tamamen hazır olduğu söylenemez.
